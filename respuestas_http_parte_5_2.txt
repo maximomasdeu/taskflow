@@ -1,0 +1,31 @@
+Parte 5.2 - Pruebas de códigos HTTP con curl
+
+1) GET /api/tasks/
+Código: 200 OK
+Respuesta JSON real: lista de tareas existentes.
+
+2) POST /api/tasks/
+Código: 201 Created
+Request enviado:
+{"project":1,"title":"Tarea manual","description":"Prueba con curl","priority":"media","status":"pendiente"}
+
+3) DELETE /api/tasks/11/
+Código: 204 No Content
+
+4) POST /api/tasks/ sin title
+Código: 400 Bad Request
+Request enviado:
+{"project":1}
+Respuesta JSON real:
+{"error":true,"detail":{"title":["This field is required."]}}
+
+5) GET /api/tasks/999/
+Código: 404 Not Found
+Respuesta JSON real:
+{"error":true,"detail":{"detail":"No Task matches the given query."}}
+
+6) Error interno del servidor
+Código: 500 Internal Server Error
+Respuesta JSON real:
+{"error":true,"detail":"Error interno del servidor."}
+

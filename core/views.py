@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from rest_framework import viewsets
+from rest_framework.decorators import action
 
 from .models import Project, Task
 from .serializers import ProjectSerializer, TaskSerializer
@@ -15,3 +16,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.select_related("project").prefetch_related("tags").all()
     serializer_class = TaskSerializer
+    @action(detail=False, methods=["get"])
+    def romper(self, request):
+        return 1 / 0  # error a propósito, SOLO para probar el 500
