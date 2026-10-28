@@ -48,6 +48,14 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",  # nueva: tiene que ir primera 
+    "django.middleware.security.SecurityMiddleware", 
+    "django.contrib.sessions.middleware.SessionMiddleware", 
+    "django.middleware.common.CommonMiddleware", 
+    "django.middleware.csrf.CsrfViewMiddleware", 
+    "django.contrib.auth.middleware.AuthenticationMiddleware", 
+    "django.contrib.messages.middleware.MessageMiddleware", 
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -158,10 +166,18 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
-
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+        "DEFAULT_THROTTLE_CLASSES": [ 
+        "rest_framework.throttling.AnonRateThrottle", 
+        "rest_framework.throttling.UserRateThrottle", 
+    ], 
+    "DEFAULT_THROTTLE_RATES": { 
+        "anon": "20/minute", 
+        "user": "100/minute", 
+        "login": "5/minute", 
+    },
 }
 
 SIMPLE_JWT = {
@@ -203,3 +219,22 @@ LOGIN_REDIRECT_URL = "/api/auth/social/jwt/"
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
+# --- Seguridad (Clase 8) --- 
+INSTALLED_APPS += ["corsheaders"] 
+
+CORS_ALLOWED_ORIGINS = [ 
+    "http://localhost:3000", 
+    "https://taskflow-app.com", 
+]
+
+LOGGING = { 
+    "version": 1, 
+    "disable_existing_loggers": False, 
+    "handlers": { 
+        "file": {"class": "logging.FileHandler", "filename": BASE_DIR / "security.log"}, 
+    }, 
+    "loggers": { 
+        "security": {"handlers": ["file"], "level": "WARNING"}, 
+    }, 
+}

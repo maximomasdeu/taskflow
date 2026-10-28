@@ -1,3 +1,5 @@
+import nh3
+
 from datetime import date
 
 from rest_framework import serializers
@@ -36,6 +38,10 @@ class TaskSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "La fecha límite no puede ser en el pasado."
             )
+
+    def validate_description(self, value): 
+        return nh3.clean(value, tags=set())
+    
         return value
 
     def validate(self, data):
