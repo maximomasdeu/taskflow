@@ -16,7 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.views.decorators.csrf import csrf_exempt
 from core.views import RegisterView, SocialLoginJWTView, ThrottledTokenObtainPairView
+from core.graphql_views import JWTGraphQLView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
@@ -26,4 +28,5 @@ urlpatterns = [
     path("api/auth/social/jwt/", SocialLoginJWTView.as_view(), name="social_jwt"),
     path("api/token/", ThrottledTokenObtainPairView.as_view(), name="token_obtain_pair"), 
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("graphql/", csrf_exempt(JWTGraphQLView.as_view(graphiql=True))),
 ]

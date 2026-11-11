@@ -9,7 +9,7 @@ from .throttles import LoginRateThrottle
 
 from rest_framework.exceptions import PermissionDenied
 from .permissions import IsProjectAdminOrReadOnly
-from .services import MembershipService, TaskService
+from .services import MembershipService, NotificationService, TaskService
 
 
 from django.http import JsonResponse
@@ -77,7 +77,8 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         self.check_project_admin(serializer.validated_data["project"])
-        serializer.save(owner=self.request.user)
+        task = serializer.save(owner=self.request.user)
+        NotificationService.notify_task_created(task)
 
     def perform_update(self, serializer):
         if "project" in serializer.validated_data:
@@ -129,4 +130,3 @@ class ThrottledTokenObtainPairView(TokenObtainPairView):
 ip_address=ip) 
             security_logger.warning(f"Login fallido para usuario {username} desde {ip}") 
             raise
-

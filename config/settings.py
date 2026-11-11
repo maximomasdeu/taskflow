@@ -51,6 +51,7 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",  # nueva: tiene que ir primera 
     "django.middleware.security.SecurityMiddleware", 
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # nueva
     "django.contrib.sessions.middleware.SessionMiddleware", 
     "django.middleware.common.CommonMiddleware", 
     "django.middleware.csrf.CsrfViewMiddleware", 
@@ -89,12 +90,29 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DB_ENGINE = os.getenv("DB_ENGINE", "sqlite")
+
+if DB_ENGINE == "sqlite":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            # DB_ENGINE=postgresql  o  DB_ENGINE=mysql
+            "ENGINE": f"django.db.backends.{DB_ENGINE}",
+            "NAME": os.getenv("DB_NAME"),
+            "USER": os.getenv("DB_USER"),
+            "PASSWORD": os.getenv("DB_PASSWORD"),
+            "HOST": os.getenv("DB_HOST"),
+            "PORT": os.getenv("DB_PORT"),
+        }
+    }
+    if DB_ENGINE == "mysql":
+        DATABASES["default"]["OPTIONS"] = {"charset": "utf8mb4"}
 
 
 # Password validation
@@ -132,6 +150,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
 # Email
@@ -226,8 +245,9 @@ INSTALLED_APPS += ["corsheaders"]
 
 CORS_ALLOWED_ORIGINS = [ 
     "http://localhost:3000", 
+    "http://127.0.0.1:5500",
     "https://taskflow-app.com", 
-]
+] 
 
 LOGGING = { 
     "version": 1, 
@@ -246,6 +266,19 @@ ASGI_APPLICATION = "config.asgi.application"
 
 CHANNEL_LAYERS = { 
     "default": { 
-        "BACKEND": "channels.layers.InMemoryChannelLayer", 
+        "BACKEND": "channels_redis.core.RedisChannelLayer", 
+        "CONFIG": { 
+            "hosts": [os.getenv("REDIS_URL", "redis://127.0.0.1:6379")], 
+        }, 
     }, 
-} 
+}
+
+# --- GraphQL (Clase 11) ---
+INSTALLED_APPS += ["graphene_django"]
+
+GRAPHENE = {
+    "SCHEMA": "config.schema.schema",
+}
+
+# --- Producción (Clase 12) ---
+CSRF_TRUSTED_ORIGINS = [o for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o]

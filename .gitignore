@@ -3,5 +3,7 @@ __pycache__/
 *.py[cod]
 db.sqlite3
 .env
+.env.*
 .vscode/
 comandos.txt
+staticfiles/
